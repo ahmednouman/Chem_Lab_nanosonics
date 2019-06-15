@@ -1,0 +1,53 @@
+#!/usr/bin/python3
+
+############################################################
+# PUMP CLASS
+#
+# Project: Testing Bench fot Chemical Lab
+# Company: Nanosonics
+# Author:  Ahmed Ali Omer Ali
+# Date:    07/11/2018
+#
+# Comments:
+#   This calls defines a PWM output and give to it
+#   functionality. Set values, Set zeros and delete
+#
+############################################################
+
+
+#IMPORTS
+import RPi.GPIO as GPIO
+
+import time
+import datetime
+
+import tkinter as tk
+import tkinter.ttk as ttk
+from tkinter import messagebox
+from tkinter import simpledialog
+from tkinter import filedialog
+from PIL import Image
+from PIL import ImageTk
+
+from pathlib import Path
+
+
+
+class Pump():
+    
+    def __init__(self,pin,hz):
+        self.pin = pin
+        GPIO.setmode(GPIO.BOARD)
+        GPIO.setup(pin,GPIO.OUT)
+        #Initialize in the PIN pin a PWM output with a frequency of 100Hz
+        self.pwm = GPIO.PWM(pin,hz)
+        self.pwm.start(0)
+        
+    def setDuty(self,value):
+        self.pwm.ChangeDutyCycle(value)
+
+    def setZero(self):
+        self.pwm.ChangeDutyCycle(0)
+    
+    def stop(self):
+        self.pwm.ChangeDutyCycle(0)

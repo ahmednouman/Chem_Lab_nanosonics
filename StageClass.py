@@ -1,0 +1,130 @@
+#!/usr/bin/python3
+
+#############################################################
+# STAGE CLASS
+#
+# Project: Testing Bench fot Chemical Lab
+# Company: Nanosonics
+# Author:  Ahmed Ali Omer Ali
+# Date:    07/11/2018
+#
+# Comments:
+#   This class structures and gives functionality to each
+#   stage. Basicaly when called, it adds the PMWs and Dout
+#   and set the values desired by the caller. 
+#   It also checks posible error in the data.
+#
+#############################################################
+
+
+#IMPORTS
+import RPi.GPIO as GPIO
+
+import time
+import datetime
+
+import tkinter as tk
+import tkinter.ttk as ttk
+from tkinter import messagebox
+from tkinter import simpledialog
+from tkinter import filedialog
+from PIL import Image
+from PIL import ImageTk
+
+from pathlib import Path
+
+
+class Stage():
+
+    
+    RESPS = 4 #BASIC CONSTANT FOR LOOPS
+
+    
+    def __init__(self,pumps,douts):
+        self.time = 0
+        self.stage = []
+        self.stage.append(pumps)
+        self.stage.append(douts)
+        self.configure = []
+                
+    def setValues(self, values, config):
+        GPIO.setmode(GPIO.BOARD)
+        self.time = int(values[1])*60 + int(values[2]) #based on the data structure the time values are stored in the second and third indexes
+        self.configure = config
+        self.configure = list(map(int,self.configure))
+        #print (self.configure)
+        #print('here')
+        #print (values)
+        #SET THE VALUES OF THE PUMPS
+        #print(type(self.configure[0]))
+        for i in range (self.RESPS):
+            if(int(self.configure[i]) == 1):
+                #print('on')
+                code = int(values[2*i+3])
+                value = int(values[2*i+4])
+                if (code == 0):
+                    self.stage[0][2*i].setZero()
+                    if(value <= 0):
+                        self.stage[0][2*i+1].setZero()
+                    elif(value >= 100):
+                        self.stage[0][2*i+1].setDuty(100)
+                    else:
+                        self.stage[0][2*i+1].setDuty(value)
+
+                elif (code == 1):
+                    self.stage[0][2*i+1].setZero()
+
+                    if(value <= 0):
+                        self.stage[0][2*i].setZero()
+                    elif(value >= 100):
+                        self.stage[0][2*i].setDuty(100)
+                    else:
+                        self.stage[0][2*i].setDuty(value)
+        
+                else:
+                    #DETECT ERRORS AND SET UP ZEROS IN THE OUTPUTS
+                    self.stage[0][2*i].setZero()
+                    self.stage[0][2*i+1].setZero()
+                    #print("Warning!!--> Error in text file...")
+            else:
+                
+                #print('off')
+                value1 = int(values[2*i+3])
+                value2 = int(values[2*i+4])
+                
+                if(value1 <= 0):
+                    self.stage[0][2*i].setZero()
+                elif(value1 >= 100):
+                    self.stage[0][2*i].setDuty(100)
+                else:
+                    self.stage[0][2*i].setDuty(value1)
+                
+                if(value2 <= 0):
+                    self.stage[0][2*i+1].setZero()
+                elif(value2 >= 100):
+                    self.stage[0][2*i+1].setDuty(100)
+                else:
+                    self.stage[0][2*i+1].setDuty(value2)
+
+        #SET THE VALUES OF THE DIG OUTPUTS
+        for j in range (self.RESPS):
+            code = int(values[11+j])
+            if (code == 1):
+                self.stage[1][j].setOn()
+            elif (code == 0):
+                self.stage[1][j].setOff()
+            else:
+                #Detect error and set off the Dout
+                self.stage[1][j].setOff()
+                #print("Warning!!--> Error in text file...")
+        
+        
+    def setZeros(self):    
+        GPIO.setmode(GPIO.BOARD)
+        for i in range (self.RESPS):
+            self.stage[1][i].setOff()
+            self.stage[0][2*i].setZero()
+            self.stage[0][2*i+1].setZero() 
+        
+    def setTime(self, time):
+        self.time = time

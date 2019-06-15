@@ -1,0 +1,39 @@
+#!/usr/bin/python3
+
+#################################################################
+# FLAG CLASS
+#
+# Project: Testing Bench fot Chemical Lab
+# Company: Nanosonics
+# Author:  Manuel Bernal Lecina
+# Date:    07/11/2018
+#
+# Comments:
+#   Simple flag class to simplify the comunication between
+#   classes
+#
+#################################################################
+
+
+#IMPORTS
+import RPi.GPIO as GPIO
+
+import time
+import datetime
+
+import tkinter as tk
+import tkinter.ttk as ttk
+from tkinter import messagebox
+from tkinter import simpledialog
+from tkinter import filedialog
+from PIL import Image
+from PIL import ImageTk
+
+from pathlib import Path
+
+class Flag():
+    def __init__(self):
+        self.value=True
+        
+    def setValue(self, bol):
+        self.value = bol
